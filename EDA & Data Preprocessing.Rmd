@@ -1,0 +1,142 @@
+---
+title: "EDA & Data Preprocessing in R"
+author: "Muhammad Rivaldi"
+date: "3/22/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+![](https://github.com/mrivaldi/PSDS_Kelas_mahir/blob/main/KM01%20Header%20Notebook.png?raw=true)
+
+## **Pendahuluan**
+
+### Import Library
+```{r}
+if(!require(tidyverse)) install.packages("tidyverse")
+if(!require(skimr)) install.packages("skimr")
+if(!require(DataExplorer)) install.packages("DataExplorer")
+if(!require(visdat)) install.packages("visdat")
+if(!require(dplyr)) install.packages("dplyr")
+if(!require(ggplot2)) install.packages("ggplot2")
+if(!require(tidyr)) install.packages("tidyr")
+if(!require(readr)) install.packages("readr")
+if(!require(tibble)) install.packages("tibble")
+
+library(visdat)
+library(tidyverse)
+library(skimr)
+library(DataExplorer)
+library(dplyr)
+library(ggplot2)
+library(tidyr)
+library(readr)
+library(tibble)
+```
+
+### Mengakses Dataset
+
+```{r}
+df  <- read.csv("https://raw.githubusercontent.com/mrivaldi/PSDS_Kelas_mahir/main/titanic_modify.csv", stringsAsFactors = T)
+df[df == ""] <- NA
+df[0:10,]
+```
+
+### Tujuan Analisis Data
+Melakukan klasifikasi penumpang yang selamat dan tidak selamat pada kasus tenggelamnya kapal Titanic.
+
+### Memahami dataset
+
+Dataset Titanic_modify adalah modifikasi dataset Titanic. Dataset ini dibuat untuk membuat machine learning untuk melakukan klasifikasi biner(Selamat atau Tidak Selamat. Variabel-variabel yang terdapat pada dataset ini adalah sebagai berikut:
+
+1. **X** = Indeks baris df
+2. **PassengerId** = Nomor Id Penumpang 
+3. **Survived** = Keterangan Selamat(0=Tidak, 1=Ya)
+4. **Pclass** = Kelas Tiket (1=Kelas 1, 2=Kelas 2, dst)
+5. **Name** = Nama Penumpang
+6. **Sex** = Jenis kelamin
+7. **Age** = Usia dalam tahun
+8. **SibSp** = Jumlah saudara kandung / pasangan di kapal Titanic
+9. **Parch** = Jumlah orang tua / anak di kapal Titanic
+10. **Ticket** = Nomor Tiket
+11. **Fare** = Harga Tiket
+12. **Cabin** = Nama Kabin
+13. **Embarked** = Pelabuhan Asal (C = Cherbourg, Q = Queenstown, S = Southampton)
+
+##**Eksploratory Data Analysis**
+
+### Dimensi Data
+```{r}
+dim(df)
+```
+dim(df) adalah cara untuk mengetahui dimensi dari DataFrame df yang menampilkan jumlah kolom dan bari. Dari DataFrame diatas diketahui jumlah kolom 13 dan Jumlah barisnya 707
+
+### Variabel Pada Dataset
+
+```{r}
+names(df)
+```
+```{r}
+str(df)
+```
+Kita dapat mengetahui tipe-tipe data masing-masing variabel dan nama-nama variabel dalam dataset.
+
+### Mengecek Missing Data
+
+```{r}
+sapply(df, function(x) sum(is.na(x)))
+
+```
+```{r}
+vis_miss(df)
+
+```
+### Melihat Korelasi Data
+```{r}
+plot_correlation(df)
+```
+
+### Melihat Statistik Data
+```{r}
+summary(df)
+```
+### Pairplot
+```{r}
+plot_scatterplot(df , by = "Survived")
+```
+
+## Data Pre Processing
+Data preprocessing ini digunakan guna menyiapkan data untuk diklasifikasi menggunakan metode SVM(Hanya Contoh).
+
+Setelah mengetahui hasil EDA di atas maka untuk hasil yang baik diperlukan beberapa hal sebagai berikut:
+1. Menghapus kolom teks yang tidak diperlukan: **Name** dan **Ticket**
+2. Mengisi NaN pada kolom **Cabin** dengan salah satu nama kabin tertentu*, mengisi NaN pada kolom **Age **dengan nilai rata-ratanya
+3. Melakukan pengkodean(Encoding) pada kolom **Sex** , **Cabin**, dan **Embarked**
+4. Menghapus outlier
+5. Karena nilai data ada yang sangat besar dan kecil maka perlu dilakukan normalisasi
+
+Setelah data diperbaiki dilakukan langkah sebagai berikut:
+1. Memilih variabel independent dan label
+2. Membagi data menjadi data training dan data testing
+
+
+[Note] * Ini hanya contoh untuk melakukan pengisian data NaN(Kosong), nama kabin mungkin menjadi penting sehingga tidak segampang itu diganti
+
+### Memperbaiki Missing Value pada Age
+
+```{r}
+df$Age=ifelse(is.na(df$Age),
+              ave(df$Age, FUN=function(x)mean(x,na.rm=TRUE)),
+              df$Age)
+```
+
+### Menghapus Outlier
+```{r}
+boxplot(df)
+```
+
+Alhasil, dada NA telah digantikan. proses selanjutnya masih belum dapat saya lanjutkan karena berbagai macam keterbatasan.
+
+### Thanks for coming :)
